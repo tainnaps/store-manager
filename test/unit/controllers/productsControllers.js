@@ -9,6 +9,7 @@ describe('ProductsControllers', () => {
       const request = {};
       const response = {};
       let next;
+
       const fakeProducts = [
         {
           id: 1,
