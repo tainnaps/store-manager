@@ -33,7 +33,6 @@ const getById = async (id) => {
   if (!saleDetails) {
     return {
       error: {
-        type: 'notFound',
         message: 'Sale not found',
       },
     };

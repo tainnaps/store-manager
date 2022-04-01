@@ -12,7 +12,6 @@ const getById = async (id) => {
   if (!product) {
     return {
       error: {
-        type: 'notFound',
         message: 'Product not found',
       },
     };
