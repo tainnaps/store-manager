@@ -55,7 +55,44 @@ describe('ProductsModels', () => {
     });
   });
 
-  // describe('Get product by id', () => {
-    
-  // });
+  describe('Get product by id', () => {
+    describe('when the product exists on the database', () => {
+      const fakeProduct = {
+        id: 2,
+        name: 'Areia mágica',
+        quantity: 20
+      };
+
+      before(() => {
+        sinon.stub(connection, 'execute').resolves([ [fakeProduct] ]);
+      });
+
+      after(() => {
+        connection.execute.restore();
+      });
+
+      it('should return an object with the product\'s details', async () => {
+        const product = await ProductsModels.getById(2);
+
+        expect(product).to.be.an('object');
+        expect(product).to.deep.equal(fakeProduct);
+      });
+    });
+
+    describe('when the product does not exist on the database', () => {
+      before(() => {
+        sinon.stub(connection, 'execute').resolves([ [] ]);
+      });
+
+      after(() => {
+        connection.execute.restore();
+      });
+
+      it('should return null', async () => {
+        const product = await ProductsModels.getById();
+
+        expect(product).to.be.null;
+      });
+    });
+  });
 });
