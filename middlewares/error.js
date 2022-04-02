@@ -1,5 +1,8 @@
 const statusByErrorType = {
   notFound: 404,
+  alreadyExists: 409,
+  isRequired: 400,
+  invalidValue: 422,
 };
 
 const handleError = (error, _req, res, _next) => {
