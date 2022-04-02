@@ -12,6 +12,7 @@ const getById = async (id) => {
   if (!product) {
     return {
       error: {
+        type: 'notFound',
         message: 'Product not found',
       },
     };
@@ -20,7 +21,25 @@ const getById = async (id) => {
   return { product };
 };
 
+const create = async (name, quantity) => {
+  const existingProduct = await ProductsModels.getByName(name);
+
+  if (existingProduct) {
+    return {
+      error: {
+        type: 'alreadyExists',
+        message: 'Product already exists',
+      },
+    };
+  }
+
+  const createdProduct = await ProductsModels.create(name, quantity);
+
+  return { product: createdProduct };
+};
+
 module.exports = {
   getAll,
   getById,
+  create,
 };

@@ -1,39 +1,46 @@
 const ProductsServices = require('../services/products');
 
-const getAll = async (_req, res) => {
+const getAll = async (_req, res, next) => {
   try {
     const products = await ProductsServices.getAll();
 
     res.status(200).json(products);
   } catch (error) {
-    console.log(error);
-
-    res.status(500).json({ message: 'Internal Server Error' });
+    next(error);
   }
 };
 
-const getById = async (req, res) => {
+const getById = async (req, res, next) => {
   try {
     const { params } = req;
     const id = parseInt(params.id, 10);
 
     const { product, error } = await ProductsServices.getById(id);
 
-    if (error) {
-      const { message } = error;
-
-      return res.status(404).json({ message });
-    }
+    if (error) return next(error);
 
     res.status(200).json(product);
   } catch (error) {
-    console.log(error);
+    next(error);
+  }
+};
 
-    res.status(500).json({ message: 'Internal Server Error' });
+const create = async (req, res, next) => {
+  try {
+    const { name, quantity } = req.body;
+
+    const { product, error } = await ProductsServices.create(name, quantity);
+
+    if (error) return next(error);
+
+    res.status(201).json(product);
+  } catch (error) {
+    next(error);
   }
 };
 
 module.exports = {
   getAll,
   getById,
+  create,
 };
