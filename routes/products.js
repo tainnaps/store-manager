@@ -8,6 +8,8 @@ router.get('/', ProductsControllers.getAll);
 
 router.get('/:id', ProductsControllers.getById);
 
+router.delete('/:id', ProductsControllers.deleteById);
+
 router.post(
   '/',
   ProductsMiddlewares.validateExistence,
