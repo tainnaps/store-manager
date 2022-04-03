@@ -50,8 +50,15 @@ const create = async (products) => {
   return createdSale;
 };
 
+const update = async (id, products) => {
+  const updatedSale = await SalesModels.update(id, products);
+
+  return updatedSale;
+};
+
 module.exports = {
   getAll,
   getById,
   create,
+  update,
 };

@@ -15,4 +15,11 @@ router.post(
   SalesControllers.create,
 );
 
+router.put(
+  '/:id',
+  SalesMiddlewares.validateExistence,
+  SalesMiddlewares.validateValue,
+  SalesControllers.update,
+);
+
 module.exports = router;
