@@ -39,12 +39,19 @@ const getById = async (id) => {
     };
   }
 
-  const formatedSale = saleDetails.map((saleDetail) => format(saleDetail));
+  const formattedSale = saleDetails.map((saleDetail) => format(saleDetail));
 
-  return { sale: formatedSale };
+  return { sale: formattedSale };
+};
+
+const create = async (products) => {
+  const createdSale = await SalesModels.create([...products]);
+
+  return createdSale;
 };
 
 module.exports = {
   getAll,
   getById,
+  create,
 };
