@@ -20,7 +20,11 @@ const getById = async (id) => {
 
 const getByName = async (name) => {
   const query = 'SELECT id, name, quantity FROM StoreManager.products WHERE name = ?';
-  const [[product]] = await connection.execute(query, [name]);
+  const [products] = await connection.execute(query, [name]);
+
+  if (products.length === 0) return null;
+
+  const [product] = products;
 
   return product;
 };
