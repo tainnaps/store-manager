@@ -68,4 +68,61 @@ describe('SalesServices', () => {
       });
     });
   });
+
+  describe('Get sale by id', () => {
+    describe('when the sale is found', () => {
+      const fakeSale = [
+        {
+          date: '2022-04-03T05:09:19.000Z',
+          productId: 3,
+          quantity: 15
+        }
+      ];
+
+      before(() => {
+        const fakeResult = [
+          {
+            date: '2022-04-03T05:09:19.000Z',
+            product_id: 3,
+            quantity: 15
+          }
+        ];
+
+        sinon.stub(SalesModels, 'getById').resolves(fakeResult);
+      });
+
+      after(() => {
+        SalesModels.getById.restore();
+      });
+
+      it('should return an object with the property "sale" whose value is the sale\'s details', async () => {
+        const result = await SalesServices.getById(2);
+
+        expect(result).to.be.an('object');
+        expect(result).to.have.deep.property('sale', fakeSale);
+      });
+    });
+
+    describe('when the product is not found', () => {
+      const error = {
+        type: 'notFound',
+        message: 'Sale not found',
+      };
+
+      before(() => {
+        sinon.stub(SalesModels, 'getById').resolves(null);
+      });
+
+      after(() => {
+        SalesModels.getById.restore();
+      });
+
+      it('should return an object with the property "error"', async () => {
+        const result = await SalesServices.getById();
+
+        expect(result).to.be.an('object');
+        expect(result).to.have.deep.property('error', error);
+      });
+    });
+  });
 });
