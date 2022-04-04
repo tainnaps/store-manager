@@ -136,4 +136,25 @@ describe('ProductsModels', () => {
       });
     });
   });
+
+  describe('Create a product', () => {
+    describe('on the database', () => {
+      const insertId = 2;
+
+      before(() => {
+        sinon.stub(connection, 'execute').resolves([ { insertId } ]);
+      });
+
+      after(() => {
+        connection.execute.restore();
+      });
+
+      it('should return an object with id key equals to insertId', async () => {
+        const product = await ProductsModels.create('Areia mágica', 20);
+
+        expect(product).to.be.an('object');
+        expect(product).to.have.property('id', insertId);
+      });
+    });
+  });
 });
