@@ -8,6 +8,8 @@ router.get('/', SalesControllers.getAll);
 
 router.get('/:id', SalesControllers.getById);
 
+router.delete('/:id', SalesControllers.deleteById);
+
 router.post(
   '/',
   SalesMiddlewares.validateExistence,
