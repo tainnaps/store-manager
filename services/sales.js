@@ -1,4 +1,5 @@
 const SalesModels = require('../models/sales');
+const ProductsModels = require('../models/products');
 
 const format = (saleData) => {
   const { date, quantity, sale_id: saleId, product_id: productId } = saleData;
@@ -44,8 +45,32 @@ const getById = async (id) => {
   return { sale: formattedSale };
 };
 
+const updateProducts = (products, action) => {
+  const updatePromises = products.map(async ({ productId, quantity }) => {
+    const product = await ProductsModels.getById(productId);
+    let newQuantity;
+
+    switch (action) {
+      case 'update':
+        newQuantity = product.quantity - quantity;
+        break;
+      case 'delete':
+        newQuantity = product.quantity + quantity;
+        break;
+      default:
+        break;
+    }
+
+    return ProductsModels.update(productId, product.name, newQuantity);
+  });
+
+  return Promise.all(updatePromises);
+};
+
 const create = async (products) => {
-  const createdSale = await SalesModels.create([...products]);
+  await updateProducts(products, 'update');
+
+  const createdSale = await SalesModels.create(products);
 
   return createdSale;
 };
@@ -67,6 +92,9 @@ const deleteById = async (id) => {
       },
     };
   }
+  const formattedSale = existingSale.map((saleDetail) => format(saleDetail));
+
+  await updateProducts(formattedSale, 'delete');
 
   await SalesModels.deleteById(id);
 
