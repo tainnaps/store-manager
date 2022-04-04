@@ -150,10 +150,40 @@ describe('ProductsModels', () => {
       });
 
       it('should return an object with id key equals to insertId', async () => {
-        const product = await ProductsModels.create('Areia mágica', 20);
+        const productName = 'Areia mágica';
+        const productQuantity = 20;
 
-        expect(product).to.be.an('object');
-        expect(product).to.have.property('id', insertId);
+        const updatedProduct = await ProductsModels.create(productName, productQuantity);
+
+        expect(updatedProduct).to.be.an('object');
+        expect(updatedProduct).to.have.property('id', insertId);
+        expect(updatedProduct).to.have.property('name', productName);
+        expect(updatedProduct).to.have.property('quantity', productQuantity);
+      });
+    });
+  });
+
+  describe('Update a product', () => {
+    describe('on the database', () => {
+      before(() => {
+        sinon.stub(connection, 'execute').resolves();
+      });
+
+      after(() => {
+        connection.execute.restore();
+      });
+
+      it('should return an object with the product\'s details', async () => {
+        const productId = 2;
+        const productName = 'Areia mágica';
+        const productQuantity = 20;
+
+        const updatedProduct = await ProductsModels.update(productId, productName, productQuantity);
+
+        expect(updatedProduct).to.be.an('object');
+        expect(updatedProduct).to.have.property('id', productId);
+        expect(updatedProduct).to.have.property('name', productName);
+        expect(updatedProduct).to.have.property('quantity', productQuantity);
       });
     });
   });
