@@ -516,4 +516,132 @@ describe('ProductsControllers', () => {
       });
     });
   });
+
+  describe('calling deleteById controller', () => {
+    describe('when there is no error in the app', () => {
+      describe('and the product is deleted', () => {
+        const request = {};
+        const response = {};
+        let next;
+
+        before(() => {
+          request.params = { id: 2 };
+
+          response.status = sinon.stub().returns(response);
+          response.end = sinon.stub().returns();
+
+          next = sinon.stub().returns();
+
+          sinon.stub(ProductsServices, 'deleteById').resolves({});
+        });
+  
+        after(() => {
+          ProductsServices.deleteById.restore();
+        });
+  
+        it('should call status with 204 code', async () => {
+          await ProductsControllers.deleteById(request, response, next);
+  
+          expect(response.status.calledWith(204)).to.be.true;
+        });
+  
+        it('should call end', async () => {
+          await ProductsControllers.deleteById(request, response, next);
+  
+          expect(response.end.called).to.be.true;
+        });
+  
+        it('should not call next', async () => {
+          await ProductsControllers.deleteById(request, response, next);
+  
+          expect(next.called).to.be.false;
+        });
+      });
+
+      describe('and the product is not deleted', () => {
+        const request = {};
+        const response = {};
+        let next;
+  
+        const notFoundError = {
+          type: 'notFound',
+          message: 'Product not found',
+        };
+  
+        before(() => {
+          request.params = { id: 2 };
+
+          response.status = sinon.stub().returns(response);
+          response.end = sinon.stub().returns();
+
+          next = sinon.stub().returns();
+
+          sinon.stub(ProductsServices, 'deleteById').resolves({ error: notFoundError });
+        });
+  
+        after(() => {
+          ProductsServices.deleteById.restore();
+        });
+  
+        it('should not call status', async () => {
+          await ProductsControllers.deleteById(request, response, next);
+  
+          expect(response.status.called).to.be.false;
+        });
+  
+        it('should not call end', async () => {
+          await ProductsControllers.deleteById(request, response, next);
+  
+          expect(response.end.called).to.be.false;
+        });
+  
+        it('should call next with not found error', async () => {
+          await ProductsControllers.deleteById(request, response, next);
+  
+          expect(next.calledWith(notFoundError)).to.be.true;
+        });
+      });
+    });
+
+    describe('when an error in the app happens', () => {
+      const request = {};
+      const response = {};
+      let next;
+
+      const error = new Error;
+
+      before(() => {
+        request.params = { id: 2 };
+
+        response.status = sinon.stub().returns(response);
+        response.end = sinon.stub().returns();
+
+        next = sinon.stub().returns();
+
+        sinon.stub(ProductsServices, 'deleteById').throws(error);
+      });
+
+      after(() => {
+        ProductsServices.deleteById.restore();
+      });
+
+      it('should not call status', async () => {
+        await ProductsControllers.deleteById(request, response, next);
+
+        expect(response.status.called).to.be.false;
+      });
+
+      it('should not call end', async () => {
+        await ProductsControllers.deleteById(request, response, next);
+
+        expect(response.end.called).to.be.false;
+      });
+
+      it('should call next with catched error', async () => {
+        await ProductsControllers.deleteById(request, response, next);
+
+        expect(next.calledWith(error)).to.be.true;
+      });
+    });
+  });
 });
