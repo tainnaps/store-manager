@@ -115,4 +115,71 @@ describe('ProductsServices', () => {
       });
     });
   });
+
+  describe('Create product', () => {
+    const fakeProduct = {
+      id: 2,
+      name: 'Areia mágica',
+      quantity: 20
+    };
+
+    describe('when the product does not exist yet', () => {
+
+      before(() => {
+        sinon.stub(ProductsModels, 'create').resolves(fakeProduct);
+        sinon.stub(ProductsModels, 'getByName').resolves(null);
+      });
+
+      after(() => {
+        ProductsModels.create.restore();
+        ProductsModels.getByName.restore();
+      });
+
+      it('should call ProductsModel.create', async () => {
+        await ProductsServices.create('Areia mágica', 20);
+
+        expect(ProductsModels.create.called).to.be.true;
+      });
+
+      it('should return an object with the property "product" whose value is the product\'s details', async () => {
+        const result = await ProductsServices.create('Areia mágica', 20);
+
+        expect(result).to.be.an('object');
+        expect(result).to.have.property('product', fakeProduct);
+      });
+    });
+
+    describe('when the product already exists', () => {
+      const fakeResult = {
+        error: {
+          type: 'alreadyExists',
+          message: 'Product already exists',
+        },
+      };
+
+      before(() => {
+        sinon.stub(ProductsModels, 'create').resolves();
+        sinon.stub(ProductsModels, 'getByName').resolves(fakeProduct);
+      });
+
+      after(() => {
+        ProductsModels.create.restore();
+        ProductsModels.getByName.restore();
+      });
+
+      it('should not call ProductsModel.create', async () => {
+        await ProductsServices.create('Areia mágica', 20);
+
+        expect(ProductsModels.create.notCalled).to.be.true;
+      });
+
+      it('should return an object with the property "error"', async () => {
+        const result = await ProductsServices.create('Areia mágica', 20);
+
+        expect(result).to.be.an('object');
+        expect(result).to.have.property('error');
+        expect(result).to.deep.equal(fakeResult);
+      });
+    });
+  });
 });
