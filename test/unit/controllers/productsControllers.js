@@ -98,12 +98,10 @@ describe('ProductsControllers', () => {
         const response = {};
         let next;
   
-        const fakeFoundResult = {
-          product: {
-            id: 2,
-            name: 'Areia mágica',
-            quantity: 20
-          },
+        const fakeProduct = {
+          id: 2,
+          name: 'Areia mágica',
+          quantity: 20
         };
   
         before(() => {
@@ -114,7 +112,7 @@ describe('ProductsControllers', () => {
 
           next = sinon.stub().returns();
 
-          sinon.stub(ProductsServices, 'getById').resolves(fakeFoundResult);
+          sinon.stub(ProductsServices, 'getById').resolves({ product: fakeProduct });
         });
   
         after(() => {
@@ -130,7 +128,7 @@ describe('ProductsControllers', () => {
         it('should call json with found product', async () => {
           await ProductsControllers.getById(request, response, next);
   
-          expect(response.json.calledWith(fakeFoundResult.product)).to.be.true;
+          expect(response.json.calledWith(fakeProduct)).to.be.true;
         });
   
         it('should not call next', async () => {
@@ -145,11 +143,9 @@ describe('ProductsControllers', () => {
         const response = {};
         let next;
   
-        const fakeNotFoundResult = {
-          error: {
-            type: 'notFound',
-            message: 'Product not found',
-          },
+        const notFoundError = {
+          type: 'notFound',
+          message: 'Product not found',
         };
   
         before(() => {
@@ -160,7 +156,7 @@ describe('ProductsControllers', () => {
 
           next = sinon.stub().returns();
 
-          sinon.stub(ProductsServices, 'getById').resolves(fakeNotFoundResult);
+          sinon.stub(ProductsServices, 'getById').resolves({ error: notFoundError });
         });
   
         after(() => {
@@ -179,10 +175,10 @@ describe('ProductsControllers', () => {
           expect(response.json.called).to.be.false;
         });
   
-        it('should call next with not found result', async () => {
+        it('should call next with not found error', async () => {
           await ProductsControllers.getById(request, response, next);
   
-          expect(next.calledWith(fakeNotFoundResult.error)).to.be.true;
+          expect(next.calledWith(notFoundError)).to.be.true;
         });
       });
     });
@@ -223,6 +219,298 @@ describe('ProductsControllers', () => {
 
       it('should call next with catched error', async () => {
         await ProductsControllers.getById(request, response, next);
+
+        expect(next.calledWith(error)).to.be.true;
+      });
+    });
+  });
+
+  describe('calling create controller', () => {
+    describe('when there is no error in the app', () => {
+      describe('and the product is created', () => {
+        const request = {};
+        const response = {};
+        let next;
+  
+        const fakeProduct = {
+          id: 2,
+          name: 'Areia mágica',
+          quantity: 20
+        };
+  
+        before(() => {
+          request.body = {
+            name: 'Areia mágica',
+            quantity: 20
+          };
+
+          response.status = sinon.stub().returns(response);
+          response.json = sinon.stub().returns();
+
+          next = sinon.stub().returns();
+
+          sinon.stub(ProductsServices, 'create').resolves({ product: fakeProduct });
+        });
+  
+        after(() => {
+          ProductsServices.create.restore();
+        });
+  
+        it('should call status with 201 code', async () => {
+          await ProductsControllers.create(request, response, next);
+  
+          expect(response.status.calledWith(201)).to.be.true;
+        });
+  
+        it('should call json with created product', async () => {
+          await ProductsControllers.create(request, response, next);
+  
+          expect(response.json.calledWith(fakeProduct)).to.be.true;
+        });
+  
+        it('should not call next', async () => {
+          await ProductsControllers.create(request, response, next);
+  
+          expect(next.called).to.be.false;
+        });
+      });
+
+      describe('and the product is not created', () => {
+        const request = {};
+        const response = {};
+        let next;
+  
+        const alreadyExistsError = {
+          type: 'alreadyExists',
+        message: 'Product already exists',
+        };
+  
+        before(() => {
+          request.body = {
+            name: 'Areia mágica',
+            quantity: 20
+          };
+
+          response.status = sinon.stub().returns(response);
+          response.json = sinon.stub().returns();
+
+          next = sinon.stub().returns();
+
+          sinon.stub(ProductsServices, 'create').resolves({ error: alreadyExistsError });
+        });
+  
+        after(() => {
+          ProductsServices.create.restore();
+        });
+  
+        it('should not call status', async () => {
+          await ProductsControllers.create(request, response, next);
+  
+          expect(response.status.called).to.be.false;
+        });
+  
+        it('should not call json', async () => {
+          await ProductsControllers.create(request, response, next);
+  
+          expect(response.json.called).to.be.false;
+        });
+  
+        it('should call next with already exists error', async () => {
+          await ProductsControllers.create(request, response, next);
+  
+          expect(next.calledWith(alreadyExistsError)).to.be.true;
+        });
+      });
+    });
+
+    describe('when an error in the app happens', () => {
+      const request = {};
+      const response = {};
+      let next;
+
+      const error = new Error;
+
+      before(() => {
+        request.body = {
+          name: 'Areia mágica',
+          quantity: 20
+        };
+
+        response.status = sinon.stub().returns(response);
+        response.json = sinon.stub().returns();
+
+        next = sinon.stub().returns();
+
+        sinon.stub(ProductsServices, 'create').throws(error);
+      });
+
+      after(() => {
+        ProductsServices.create.restore();
+      });
+
+      it('should not call status', async () => {
+        await ProductsControllers.create(request, response, next);
+
+        expect(response.status.called).to.be.false;
+      });
+
+      it('should not call json', async () => {
+        await ProductsControllers.create(request, response, next);
+
+        expect(response.json.called).to.be.false;
+      });
+
+      it('should call next with catched error', async () => {
+        await ProductsControllers.create(request, response, next);
+
+        expect(next.calledWith(error)).to.be.true;
+      });
+    });
+  });
+
+  describe('calling update controller', () => {
+    describe('when there is no error in the app', () => {
+      describe('and the product is updated', () => {
+        const request = {};
+        const response = {};
+        let next;
+  
+        const fakeProduct = {
+          id: 2,
+          name: 'Areia mágica',
+          quantity: 20
+        };
+  
+        before(() => {
+          request.body = {
+            name: 'Areia mágica',
+            quantity: 20
+          };
+
+          request.params = { id: 2 };
+
+          response.status = sinon.stub().returns(response);
+          response.json = sinon.stub().returns();
+
+          next = sinon.stub().returns();
+
+          sinon.stub(ProductsServices, 'update').resolves({ product: fakeProduct });
+        });
+  
+        after(() => {
+          ProductsServices.update.restore();
+        });
+  
+        it('should call status with 200 code', async () => {
+          await ProductsControllers.update(request, response, next);
+  
+          expect(response.status.calledWith(200)).to.be.true;
+        });
+  
+        it('should call json with updated product', async () => {
+          await ProductsControllers.update(request, response, next);
+  
+          expect(response.json.calledWith(fakeProduct)).to.be.true;
+        });
+  
+        it('should not call next', async () => {
+          await ProductsControllers.update(request, response, next);
+  
+          expect(next.called).to.be.false;
+        });
+      });
+
+      describe('and the product is not updated', () => {
+        const request = {};
+        const response = {};
+        let next;
+  
+        const notFoundError = {
+          type: 'notFound',
+          message: 'Product not found',
+        };
+  
+        before(() => {
+          request.body = {
+            name: 'Areia mágica',
+            quantity: 20
+          };
+
+          request.params = { id: 2 };
+
+          response.status = sinon.stub().returns(response);
+          response.json = sinon.stub().returns();
+
+          next = sinon.stub().returns();
+
+          sinon.stub(ProductsServices, 'update').resolves({ error: notFoundError });
+        });
+  
+        after(() => {
+          ProductsServices.update.restore();
+        });
+  
+        it('should not call status', async () => {
+          await ProductsControllers.update(request, response, next);
+  
+          expect(response.status.called).to.be.false;
+        });
+  
+        it('should not call json', async () => {
+          await ProductsControllers.update(request, response, next);
+  
+          expect(response.json.called).to.be.false;
+        });
+  
+        it('should call next with not found error', async () => {
+          await ProductsControllers.update(request, response, next);
+  
+          expect(next.calledWith(notFoundError)).to.be.true;
+        });
+      });
+    });
+
+    describe('when an error in the app happens', () => {
+      const request = {};
+      const response = {};
+      let next;
+
+      const error = new Error;
+
+      before(() => {
+        request.body = {
+          name: 'Areia mágica',
+          quantity: 20
+        };
+
+        request.params = { id: 2 };
+
+        response.status = sinon.stub().returns(response);
+        response.json = sinon.stub().returns();
+
+        next = sinon.stub().returns();
+
+        sinon.stub(ProductsServices, 'update').throws(error);
+      });
+
+      after(() => {
+        ProductsServices.update.restore();
+      });
+
+      it('should not call status', async () => {
+        await ProductsControllers.update(request, response, next);
+
+        expect(response.status.called).to.be.false;
+      });
+
+      it('should not call json', async () => {
+        await ProductsControllers.update(request, response, next);
+
+        expect(response.json.called).to.be.false;
+      });
+
+      it('should call next with catched error', async () => {
+        await ProductsControllers.update(request, response, next);
 
         expect(next.calledWith(error)).to.be.true;
       });
