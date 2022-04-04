@@ -187,4 +187,25 @@ describe('ProductsModels', () => {
       });
     });
   });
+
+  describe('Delete product by id', () => {
+    describe('on the database', () => {
+      before(() => {
+        sinon.stub(connection, 'execute').resolves();
+      });
+
+      after(() => {
+        connection.execute.restore();
+      });
+
+      it('should call connection.execute with product id as argument', async () => {
+        const query = 'DELETE FROM StoreManager.products WHERE id = ?';
+        const productId = 2;
+
+        await ProductsModels.deleteById(productId);
+
+        expect(connection.execute.calledWith(query, [productId])).to.be.true;
+      });
+    });
+  });
 });
