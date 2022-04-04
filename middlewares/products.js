@@ -1,5 +1,10 @@
 const Joi = require('joi');
 
+/*
+  Utilizei o link abaixo como apoio para validação de dados usando o Joi.
+  link: https://trybecourse.slack.com/archives/C02B4PPBERE/p1648768884552919
+*/
+
 const validateExistence = (req, _res, next) => {
   const { name, quantity } = req.body;
 
