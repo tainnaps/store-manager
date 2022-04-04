@@ -124,7 +124,6 @@ describe('ProductsServices', () => {
     };
 
     describe('when the product does not exist yet', () => {
-
       before(() => {
         sinon.stub(ProductsModels, 'create').resolves(fakeProduct);
         sinon.stub(ProductsModels, 'getByName').resolves(null);
@@ -135,7 +134,7 @@ describe('ProductsServices', () => {
         ProductsModels.getByName.restore();
       });
 
-      it('should call ProductsModel.create', async () => {
+      it('should call ProductsModels.create', async () => {
         await ProductsServices.create('Areia mágica', 20);
 
         expect(ProductsModels.create.called).to.be.true;
@@ -167,7 +166,7 @@ describe('ProductsServices', () => {
         ProductsModels.getByName.restore();
       });
 
-      it('should not call ProductsModel.create', async () => {
+      it('should not call ProductsModels.create', async () => {
         await ProductsServices.create('Areia mágica', 20);
 
         expect(ProductsModels.create.notCalled).to.be.true;
@@ -179,6 +178,72 @@ describe('ProductsServices', () => {
         expect(result).to.be.an('object');
         expect(result).to.have.property('error');
         expect(result).to.deep.equal(fakeResult);
+      });
+    });
+  });
+
+  describe('Update product', () => {
+    const fakeProduct = {
+      id: 2,
+      name: 'Areia mágica',
+      quantity: 20
+    };
+
+    describe('when the product does not exist', () => {
+      const fakeResult = {
+        error: {
+          type: 'notFound',
+          message: 'Product not found',
+        },
+      };
+
+      before(() => {
+        sinon.stub(ProductsModels, 'update').resolves();
+        sinon.stub(ProductsModels, 'getById').resolves(null);
+      });
+
+      after(() => {
+        ProductsModels.update.restore();
+        ProductsModels.getById.restore();
+      });
+
+      it('should not call ProductsModels.update', async () => {
+        await ProductsServices.update(2, 'Areia mágica', 20);
+
+        expect(ProductsModels.update.notCalled).to.be.true;
+      });
+
+      it('should return an object with the property "error"', async () => {
+        const result = await ProductsServices.update(2, 'Areia mágica', 20);
+
+        expect(result).to.be.an('object');
+        expect(result).to.have.property('error');
+        expect(result).to.deep.equal(fakeResult);
+      });
+    });
+
+    describe('when the product exists', () => {
+      before(() => {
+        sinon.stub(ProductsModels, 'update').resolves(fakeProduct);
+        sinon.stub(ProductsModels, 'getById').resolves(fakeProduct);
+      });
+
+      after(() => {
+        ProductsModels.update.restore();
+        ProductsModels.getById.restore();
+      });
+
+      it('should call ProductsModels.update', async () => {
+        await ProductsServices.update(2, 'Areia mágica', 20);
+
+        expect(ProductsModels.update.called).to.be.true;
+      });
+
+      it('should return an object with the property "product" whose value is the product\'s details', async () => {
+        const result = await ProductsServices.update(2, 'Areia mágica', 20);
+
+        expect(result).to.be.an('object');
+        expect(result).to.have.property('product', fakeProduct);
       });
     });
   });
