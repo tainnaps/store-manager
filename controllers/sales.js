@@ -29,9 +29,11 @@ const create = async (req, res, next) => {
   try {
     const products = [...req.body];
 
-    const createdSale = await SalesServices.create(products);
+    const { sale, error } = await SalesServices.create(products);
 
-    res.status(201).json(createdSale);
+    if (error) return next(error);
+
+    res.status(201).json(sale);
   } catch (error) {
     next(error);
   }

@@ -45,34 +45,74 @@ const getById = async (id) => {
   return { sale: formattedSale };
 };
 
-const updateProducts = (products, action) => {
-  const updatePromises = products.map(async ({ productId, quantity }) => {
-    const product = await ProductsModels.getById(productId);
-    let newQuantity;
+const getNewQuantity = (action, currentQuantity, updateQuantity) => {
+  let newQuantity;
 
-    switch (action) {
-      case 'update':
-        newQuantity = product.quantity - quantity;
-        break;
-      case 'delete':
-        newQuantity = product.quantity + quantity;
-        break;
-      default:
-        break;
-    }
+  switch (action) {
+    case 'update':
+      newQuantity = currentQuantity - updateQuantity;
+      break;
+    case 'delete':
+      newQuantity = currentQuantity + updateQuantity;
+      break;
+    default:
+      break;
+  }
 
-    return ProductsModels.update(productId, product.name, newQuantity);
-  });
+  return newQuantity;
+};
 
-  return Promise.all(updatePromises);
+/*
+  Usei o link abaixo como referência para solucionar o problema que tive ao usar uma função assíncrona como callback do map.
+  link: https://stackoverflow.com/questions/33438158/best-way-to-call-an-asynchronous-function-within-map
+*/
+const getNewProducts = async (products, action) => {
+  const newProducts = products
+    .map(async ({ productId, quantity }) => {
+      const product = await ProductsModels.getById(productId);
+      const newQuantity = getNewQuantity(action, product.quantity, quantity);
+
+      return {
+        id: productId,
+        name: product.name,
+        quantity: newQuantity,
+      };
+    });
+
+  return Promise.all(newProducts);
+};
+
+const updateProducts = async (products, action) => {
+  const newProducts = await getNewProducts(products, action);
+
+  const invalidQuantities = newProducts
+    .some(({ quantity }) => quantity < 0);
+
+  if (invalidQuantities) {
+    return {
+      error: {
+        type: 'invalidValue',
+        message: 'Such amount is not permitted to sell',
+      },
+    };
+  }
+
+  const updatePromises = newProducts
+    .map(({ id, name, quantity }) => ProductsModels.update(id, name, quantity));
+
+  return { updatePromise: Promise.all(updatePromises) };
 };
 
 const create = async (products) => {
-  await updateProducts(products, 'update');
+  const { updatePromise, error } = await updateProducts(products, 'update');
+
+  if (error) return { error };
+
+  await updatePromise;
 
   const createdSale = await SalesModels.create(products);
 
-  return createdSale;
+  return { sale: createdSale };
 };
 
 const update = async (id, products) => {
@@ -92,9 +132,14 @@ const deleteById = async (id) => {
       },
     };
   }
+
   const formattedSale = existingSale.map((saleDetail) => format(saleDetail));
 
-  await updateProducts(formattedSale, 'delete');
+  const { updatePromise, error } = updateProducts(formattedSale, 'delete');
+
+  if (error) return { error };
+
+  await updatePromise;
 
   await SalesModels.deleteById(id);
 
