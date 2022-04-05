@@ -52,7 +52,7 @@ describe('SalesServices', () => {
       });
     });
 
-    describe('when there are no registered products', () => {
+    describe('when there are no registered sales', () => {
       before(() => {
         sinon.stub(SalesModels, 'getAll').resolves([]);
       });
@@ -103,7 +103,7 @@ describe('SalesServices', () => {
       });
     });
 
-    describe('when the product is not found', () => {
+    describe('when the sale is not found', () => {
       const error = {
         type: 'notFound',
         message: 'Sale not found',
@@ -122,6 +122,44 @@ describe('SalesServices', () => {
 
         expect(result).to.be.an('object');
         expect(result).to.have.deep.property('error', error);
+      });
+    });
+  });
+
+  describe('Update sale', () => {
+    describe('when the sale exists', () => {
+      const fakeUpdatedSale = {
+        saleId: 1,
+        itemUpdated: [
+          {
+            productId: 1,
+            quantity: 6
+          }
+        ]
+      };
+
+      before(() => {
+        sinon.stub(SalesModels, 'update').resolves(fakeUpdatedSale);
+      });
+
+      after(() => {
+        SalesModels.update.restore();
+      });
+
+      it('should return an object with properties "saleId" and "itemUpdated"', async () => {
+        const saleId = 1;
+        const salesProducts = [
+          {
+            productId: 1,
+            quantity: 6
+          }
+        ];
+
+        const result = await SalesServices.update(saleId, salesProducts);
+
+        expect(result).to.be.an('object');
+        expect(result).to.have.property('saleId', saleId);
+        expect(result).to.have.deep.property('itemUpdated', salesProducts);
       });
     });
   });
