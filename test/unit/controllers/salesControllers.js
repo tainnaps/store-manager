@@ -70,7 +70,7 @@ describe('SalesControllers', () => {
 
         next = sinon.stub().returns();
 
-        sinon.stub(SalesServices, 'getAll').throws(error);
+        sinon.stub(SalesServices, 'getAll').rejects(error);
       });
 
       after(() => {

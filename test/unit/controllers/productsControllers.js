@@ -63,7 +63,7 @@ describe('ProductsControllers', () => {
       before(() => {
         response.status = sinon.stub().returns(response);
         response.json = sinon.stub().returns();
-        sinon.stub(ProductsServices, 'getAll').throws(error);
+        sinon.stub(ProductsServices, 'getAll').rejects(error);
         next = sinon.stub().returns();
       });
 
@@ -198,7 +198,7 @@ describe('ProductsControllers', () => {
 
         next = sinon.stub().returns();
 
-        sinon.stub(ProductsServices, 'getById').throws(error);
+        sinon.stub(ProductsServices, 'getById').rejects(error);
       });
 
       after(() => {
@@ -341,7 +341,7 @@ describe('ProductsControllers', () => {
 
         next = sinon.stub().returns();
 
-        sinon.stub(ProductsServices, 'create').throws(error);
+        sinon.stub(ProductsServices, 'create').rejects(error);
       });
 
       after(() => {
@@ -490,7 +490,7 @@ describe('ProductsControllers', () => {
 
         next = sinon.stub().returns();
 
-        sinon.stub(ProductsServices, 'update').throws(error);
+        sinon.stub(ProductsServices, 'update').rejects(error);
       });
 
       after(() => {
@@ -618,7 +618,7 @@ describe('ProductsControllers', () => {
 
         next = sinon.stub().returns();
 
-        sinon.stub(ProductsServices, 'deleteById').throws(error);
+        sinon.stub(ProductsServices, 'deleteById').rejects(error);
       });
 
       after(() => {
