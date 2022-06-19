@@ -44,7 +44,7 @@ Para executar o projeto, é necessário:
   ```
   
   ## Executando os testes
-  O projeto conta com testes unitários, desenvolvidos por mim usando `Mocha`, `Chai` e `Sinon`, para as camadas de Model, Service e Controller, cobrindo 62% dessas camadas.
+  O projeto conta com testes unitários, desenvolvidos por mim usando `Mocha`, `Chai` e `Sinon`, para as camadas de Model, Service e Controller, cobrindo 62% dos arquivos dessas camadas.
   
   Para rodar os testes do projeto, é necessário executar o seguinte comando:
   ```
