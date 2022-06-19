@@ -32,7 +32,13 @@ Para executar o projeto, é necessário:
   ```
   npm install
   ```
-3. Iniciar o servidor da aplicação
+3. Ter um servidor MySQL no computador
+
+4. Ter um cliente MySQL e conectá-lo ao servidor
+
+5. Executar as queries do arquivo `StoreManager.sql` no cliente MySQL para criar o banco de dados
+
+6. Iniciar o servidor da aplicação
   ```
   npm start
   ```
